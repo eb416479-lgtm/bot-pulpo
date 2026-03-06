@@ -1,15 +1,15 @@
 import os
 import sys
 
-# Importación directa (Nixpacks se encargará de que funcione)
+# Importación directa
 try:
     from iqoptionapi.stable_api import IQ_Option
-    print("✅ Motor IQ Option cargado exitosamente.")
+    print("✅ Motor IQ Option cargado con éxito.")
 except ImportError as e:
-    print(f"❌ Error crítico: No se encontró la librería. Detalle: {e}")
+    print(f"❌ Error crítico: {e}")
     sys.exit(1)
 
-# Variables de entorno de Railway
+# Variables
 IQ_USER = os.getenv("IQ_EMAIL")
 IQ_PASS = os.getenv("IQ_PASSWORD")
 
