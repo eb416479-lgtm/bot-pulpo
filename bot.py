@@ -2,33 +2,30 @@ import os
 import subprocess
 import sys
 import time
-import importlib
 
-def instalar_librerias():
-    print("📦 Intentando instalar librerías faltantes...")
-    try:
-        # Instalamos específicamente en la carpeta actual para que no se pierda
-        subprocess.check_call([sys.executable, "-m", "pip", "install", "iqoptionapi", "python-telegram-bot", "requests"])
-        print("✅ Librerías instaladas con éxito. Esperando 5 segundos...")
-        time.sleep(5)
-    except Exception as e:
-        print(f"❌ Error instalando: {e}")
+# 1. Forzamos la instalación (Railway ya debería tenerlas, pero esto asegura)
+print("📦 Verificando entorno...")
+subprocess.check_call([sys.executable, "-m", "pip", "install", "iqoptionapi", "python-telegram-bot", "requests"])
 
-# Intentar importar con un truco de refresco
+# 2. TRUCO MAESTRO: Agregamos la carpeta de librerías al sistema manualmente
+import site
+importlib_path = site.getusersitepackages()
+sys.path.append(importlib_path)
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'venv/lib/python3.13/site-packages')))
+
+# 3. Ahora intentamos el import
 try:
     from iqoptionapi.stable_api import IQ_Option
+    print("✅ Librería cargada correctamente.")
 except ImportError:
-    instalar_librerias()
-    # ESTO ES LO NUEVO: Obligamos a Python a refrescar sus rutas
-    importlib.invalidate_caches()
-    try:
-        from iqoptionapi.stable_api import IQ_Option
-    except ImportError:
-        # Si falla, intentamos una última vez con el path directo
-        sys.path.append(os.path.abspath(os.getcwd()))
-        from iqoptionapi.stable_api import IQ_Option
+    print("⚠️ Fallo inicial, reintentando con path forzado...")
+    time.sleep(2)
+    from iqoptionapi.stable_api import IQ_Option
 
-# ... (El resto del código de conexión)
+# --- VARIABLES ---
+IQ_USER = os.getenv("IQ_EMAIL")
+IQ_PASS = os.getenv("IQ_PASSWORD")
+# ... resto del código
 # --- CONFIGURACIÓN DE VARIABLES ---
 # Railway leerá estas que ya configuraste
 IQ_USER = os.getenv("IQ_EMAIL")
