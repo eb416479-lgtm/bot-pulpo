@@ -2,8 +2,12 @@ import os
 import subprocess
 import sys
 import time
-import site
 
+# 2. TRUCO MAESTRO: Apuntamos a la carpeta oculta .venv que usa Railway
+import site
+sys.path.append(os.path.join(os.getcwd(), '.venv', 'lib', 'python3.13', 'site-packages'))
+sys.path.append(site.getusersitepackages())
+import site
 # 1. FUERZA BRUTA PARA LIBRERÍAS
 print("📦 Verificando entorno...")
 subprocess.check_call([sys.executable, "-m", "pip", "install", "iqoptionapi", "python-telegram-bot", "requests"])
