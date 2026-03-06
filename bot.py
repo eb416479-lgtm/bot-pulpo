@@ -1,27 +1,27 @@
 import os
 import sys
 
-# Importación directa
+# Importación directa y limpia
 try:
     from iqoptionapi.stable_api import IQ_Option
-    print("✅ Motor IQ Option cargado con éxito.")
+    print("✅ MOTOR CARGADO: La librería ha sido encontrada.")
 except ImportError as e:
-    print(f"❌ Error crítico: No se encontró la librería. {e}")
+    print(f"❌ Error fatal: Railway sigue sin ver la librería. Detalle: {e}")
     sys.exit(1)
 
-# Carga de credenciales desde Railway
+# Variables de Railway
 IQ_USER = os.getenv("IQ_EMAIL")
 IQ_PASS = os.getenv("IQ_PASSWORD")
 
 if not IQ_USER or not IQ_PASS:
-    print("❌ ERROR: Faltan las variables IQ_EMAIL o IQ_PASSWORD.")
+    print("❌ ERROR: No configuraste IQ_EMAIL o IQ_PASSWORD en Variables.")
     sys.exit(1)
 
-print(f"🚀 Iniciando sesión para: {IQ_USER}")
+print(f"🚀 Intentando conexión oficial para: {IQ_USER}")
 Iq = IQ_Option(IQ_USER, IQ_PASS)
 check, reason = Iq.connect()
 
 if check:
-    print("✅ EL PULPO ESTÁ VIVO Y CONECTADO.")
+    print("✅ ¡EL PULPO ESTÁ VIVO Y OPERANDO!")
 else:
-    print(f"❌ Error de conexión: {reason}")
+    print(f"❌ Falló la cuenta: {reason}")
