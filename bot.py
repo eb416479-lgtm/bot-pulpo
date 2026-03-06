@@ -1,44 +1,39 @@
-import time
-from iqoptionapi.stable_api import IQ_Option
 import os
+import subprocess
+import sys
 
-# 1. Configuración de cuenta (Se lee de las variables de Railway)
-email = os.getenv("t2342625@gmail.com")
-password = os.getenv("Samael4589")
+# --- ESTO OBLIGA A RAILWAY A INSTALAR LA LIBRERÍA ---
+def instalar_librerias():
+    print("📦 Intentando instalar librerías faltantes...")
+    try:
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "iqoptionapi", "python-telegram-bot", "requests"])
+        print("✅ Librerías instaladas con éxito.")
+    except Exception as e:
+        print(f"❌ Error instalando: {e}")
 
-# Verificación de seguridad
-if not email or not password:
-    print("❌ ERROR: No se encontraron las credenciales en las variables de Railway.")
-    print("Por favor, agregue IQ_EMAIL e IQ_PASSWORD en la pestaña 'Variables'.")
-    exit()
+# Intentar importar, si falla, instalar
+try:
+    from iqoptionapi.stable_api import IQ_Option
+except ImportError:
+    instalar_librerias()
+    from iqoptionapi.stable_api import IQ_Option
 
-# 2. Conectar a IQ Option
-print(f"🔄 Intentando conectar a IQ Option con: {email}...")
-Iq = IQ_Option(email, password)
+# --- CONFIGURACIÓN DE VARIABLES ---
+# Railway leerá estas que ya configuraste
+IQ_USER = os.getenv("IQ_EMAIL")
+IQ_PASS = os.getenv("IQ_PASSWORD")
+
+if not IQ_USER or not IQ_PASS:
+    print("❌ ERROR: No se encontraron las variables IQ_EMAIL o IQ_PASSWORD en Railway.")
+    sys.exit(1)
+
+print("🚀 Iniciando conexión con IQ Option...")
+
+# Conexión real
+Iq = IQ_Option(IQ_USER, IQ_PASS)
 check, reason = Iq.connect()
 
 if check:
-    print("✅ Sistema Online: Batallón IQ Option desplegado.")
+    print("✅ SISTEMA ONLINE: El Pulpo está conectado a IQ Option.")
 else:
-    print(f"❌ Error al conectar: {reason}")
-    exit()
-
-# 3. Ciclo Principal del Bot
-while True:
-    try:
-        # Verificamos si seguimos conectados
-        if not Iq.check_connect():
-            print("⚠️ Conexión perdida. Reconectando...")
-            Iq.connect()
-        
-        ahora = time.strftime("%H:%M:%S")
-        
-        # Aquí es donde el bot "trabaja"
-        print(f"[{ahora}] 🔎 Escaneando mercado... Todo en orden.")
-        
-        # Espera 60 segundos antes de la siguiente revisión
-        time.sleep(60)
-        
-    except Exception as e:
-        print(f"⚠️ Error inesperado en el ciclo: {e}")
-        time.sleep(10)
+    print(f"❌ ERROR DE CONEXIÓN: {reason}")
