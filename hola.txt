@@ -1,3 +1,0 @@
-iqoptionapi
-python-telegram-bot
-requests
