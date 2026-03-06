@@ -1,48 +1,42 @@
 import os
-import subprocess
 import sys
+import subprocess
 import time
+import glob
 
-# 2. TRUCO MAESTRO: Apuntamos a la carpeta oculta .venv que usa Railway
-import site
-sys.path.append(os.path.join(os.getcwd(), '.venv', 'lib', 'python3.13', 'site-packages'))
-sys.path.append(site.getusersitepackages())
-import site
-# 1. FUERZA BRUTA PARA LIBRERÍAS
-print("📦 Verificando entorno...")
+# 1. FUERZA BRUTA: Instalamos y buscamos la ruta real al mismo tiempo
+print("📦 Verificando librerías en el sistema...")
 subprocess.check_call([sys.executable, "-m", "pip", "install", "iqoptionapi", "python-telegram-bot", "requests"])
 
-# 2. TRUCO DE RUTA (Basado en lo que vimos en sus registros)
-# Agregamos todas las posibles rutas donde Railway guarda cosas
-sys.path.append(os.path.abspath(os.path.join(os.getcwd(), '.venv/lib/python3.13/site-packages')))
-sys.path.append(site.getusersitepackages())
+# 2. EL TRUCO MAESTRO: Buscamos cualquier carpeta que termine en 'site-packages'
+# Esto encuentra la librería esté donde esté, incluso en carpetas ocultas
+for posible_ruta in glob.glob('/app/**/site-packages', recursive=True):
+    if posible_ruta not in sys.path:
+        sys.path.append(posible_ruta)
+        print(f"✅ Ruta inyectada: {posible_ruta}")
 
-# 3. IMPORTACIÓN SEGURA
+# 3. CARGA SEGURA
 try:
     from iqoptionapi.stable_api import IQ_Option
-    print("✅ Librería cargada correctamente.")
+    print("✅ ¡LOGRADO! El motor de IQ Option está cargado.")
 except ImportError:
-    print("⚠️ Reintentando carga de librería...")
-    time.sleep(2)
+    print("⚠️ Reintentando carga con path de emergencia...")
+    # Último intento: ruta manual reportada en sus logs
+    sys.path.append('/app/.venv/lib/python3.13/site-packages')
     from iqoptionapi.stable_api import IQ_Option
 
-# --- VARIABLES (Usa las que ya configuraste en Railway) ---
+# --- VARIABLES ---
 IQ_USER = os.getenv("IQ_EMAIL")
 IQ_PASS = os.getenv("IQ_PASSWORD")
 
-if not IQ_USER or not IQ_PASS:
-    print("❌ ERROR: No se encontraron las variables IQ_EMAIL o IQ_PASSWORD en Railway.")
-    sys.exit(1)
-
-# --- CONEXIÓN AL MERCADO ---
-print(f"🚀 Intentando conectar a IQ Option con: {IQ_USER}")
-Iq = IQ_Option(IQ_USER, IQ_PASS)
-check, reason = Iq.connect()
-
-if check:
-    print("✅ EL PULPO ESTÁ VIVO: Conexión exitosa a IQ Option.")
-    # AQUÍ EMPIEZA SU ESTRATEGIA
-    # Ejemplo: print(f"Saldo actual: {Iq.get_balance()}")
+# --- CONEXIÓN FINAL ---
+if IQ_USER and IQ_PASS:
+    print(f"🚀 Iniciando sesión para: {IQ_USER}")
+    Iq = IQ_Option(IQ_USER, IQ_PASS)
+    check, reason = Iq.connect()
+    if check:
+        print("✅ EL PULPO ESTÁ VIVO Y CONECTADO.")
+    else:
+        print(f"❌ Error de conexión: {reason}")
 else:
-    print(f"❌ ERROR DE CONEXIÓN: {reason}")
-    # Si el error es 'Invalid Credentials', revise su correo/clave en Railway
+    print("❌ ERROR: Faltan variables de entorno.")
