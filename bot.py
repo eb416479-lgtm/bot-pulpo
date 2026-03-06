@@ -48,10 +48,10 @@ def analizar_estrategia(activo):
     # Si la diferencia entre max y min es pequeña, hay acumulación
     en_rango = (max_p - min_p) / min_p < 0.002 # 0.2% de variación
 
-    if bajada and en_rango:
-        return "🍒 CEREZA DETECTADA"
- elif en_rango:
-        return "🟢 Acumulación detectada"
+    if not en_rango:
+            print(f"[{ahora}] ⏳ Esperando horario operativo...")
+    elif en_rango:
+            print(f"[{ahora}] ✅ Bot activo y escaneando señales...")
     return None
 
 # --- [FUNCIÓN DE INFORME ESTRATÉGICO] ---
