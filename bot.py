@@ -1,4 +1,3 @@
-   GNU nano 7.2                                                                                                          bot.py                                                                                                                    
 import time
 import schedule
 import requests
@@ -96,3 +95,4 @@ while True:
             time.sleep(300) # Evita spam de alertas
             
     time.sleep(60) # Pausa de 1 minuto para no saturar el servidor
+                                                                                                     bot.py                                                                                                                    
