@@ -1,29 +1,34 @@
 import os
 import subprocess
 import sys
-import time  # <--- Agregamos esto
+import time
+import importlib
 
 def instalar_librerias():
     print("📦 Intentando instalar librerías faltantes...")
     try:
+        # Instalamos específicamente en la carpeta actual para que no se pierda
         subprocess.check_call([sys.executable, "-m", "pip", "install", "iqoptionapi", "python-telegram-bot", "requests"])
         print("✅ Librerías instaladas con éxito. Esperando 5 segundos...")
-        time.sleep(5)  # <--- Le damos tiempo al sistema para que reconozca la carpeta
+        time.sleep(5)
     except Exception as e:
         print(f"❌ Error instalando: {e}")
 
-# Intentar importar
+# Intentar importar con un truco de refresco
 try:
     from iqoptionapi.stable_api import IQ_Option
 except ImportError:
     instalar_librerias()
-    # Forzamos al sistema a mirar la carpeta de nuevo
-    import site
-    from importlib import reload
-    reload(site)
-    from iqoptionapi.stable_api import IQ_Option
+    # ESTO ES LO NUEVO: Obligamos a Python a refrescar sus rutas
+    importlib.invalidate_caches()
+    try:
+        from iqoptionapi.stable_api import IQ_Option
+    except ImportError:
+        # Si falla, intentamos una última vez con el path directo
+        sys.path.append(os.path.abspath(os.getcwd()))
+        from iqoptionapi.stable_api import IQ_Option
 
-# ... (El resto del código de conexión sigue igual)
+# ... (El resto del código de conexión)
 # --- CONFIGURACIÓN DE VARIABLES ---
 # Railway leerá estas que ya configuraste
 IQ_USER = os.getenv("IQ_EMAIL")
